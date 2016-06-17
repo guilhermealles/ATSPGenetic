@@ -9,5 +9,8 @@ int notChosen(unsigned int node, int *solution);
 unsigned int getFirstNotChosenNode (int *solution);
 int* crossover (unsigned int parent1_index, unsigned int parent2_index);
 void printSolution(int *solution);
+int getSolutionCost(int solutionIndex);
+float getSolutionsAverageCost();
+int numberOfCopiesForSolution(int solutionIndex);
 
 #endif

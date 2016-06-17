@@ -12,17 +12,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+#include "genetic.h"
 
 // Solutions population
 #define POPULATION_COUNT 10
+#define INFINITE 999999
 
 const int instance_size = 5;
 const int instance[5][5] = {
-    {999999, 3, 2, 6, 4},
-    {3, 999999, 8, 999999, 6},
-    {10, 3, 999999, 7, 6},
-    {3, 999999, 6, 999999, 2},
-    {6, 4, 999999, 8, 999999}
+    {INFINITE, 3, 2, 6, 4},
+    {3, INFINITE, 8, INFINITE, 6},
+    {10, 3, INFINITE, 7, 6},
+    {3, INFINITE, 6, INFINITE, 2},
+    {6, 4, INFINITE, 8, INFINITE}
 };
 
 const int population[POPULATION_COUNT][5] = {
@@ -38,18 +41,86 @@ const int population[POPULATION_COUNT][5] = {
     {2, 0, 4, 3, 1}
 };
 
+float solutionsAverageCost = 0;
+
 int main(int argc, char **argv) {
     initializeRandomGenerator();
 
     int *child = crossover(0,1);
     printSolution(child);
     free(child);
+    
+    solutionsAverageCost = getSolutionsAverageCost();
+    
+//    printf("media: %f\n", solutionsAverageCost);
+    
+    for (int i = 0; i < POPULATION_COUNT; i++) {
+        numberOfCopiesForSolution(i);
+    }
 
     return 0;
 }
 
 void initializeRandomGenerator() {
     srand(time(NULL));
+}
+
+//retorna a média de custo das soluções presentes na população
+float getSolutionsAverageCost(){
+    float averageCost = 0, numberOfNonInfiniteSolutions = 0;
+    for (int i = 0; i < POPULATION_COUNT; i++) {
+        int solutionCost = getSolutionCost(i);
+        if (solutionCost != INFINITE) {
+            averageCost += solutionCost;
+            numberOfNonInfiniteSolutions++;
+        }
+    }
+    averageCost = averageCost / numberOfNonInfiniteSolutions;
+    return averageCost;
+}
+
+// Get the cost of solution with index "solutionIndex" from population
+int getSolutionCost(int solutionIndex) {
+    int j, solutionCost = 0;
+    
+    for (j=0; j<instance_size - 1; j++) {
+        int currentNode = population[solutionIndex][j];
+        int nextNode = population[solutionIndex][j+1];
+        
+        if (instance[currentNode][nextNode] >= INFINITE) {
+            solutionCost = INFINITE;
+            break;
+        }else{
+            solutionCost += instance[currentNode][nextNode];
+        }
+        //        printf("From node %i to node %i, cost: %i\n", currentNode, nextNode, instance[currentNode][nextNode]);
+    }
+//    printf("Solution with index %i costs: %i \n", solutionIndex, solutionCost);
+    return solutionCost;
+}
+
+// diz quantas cópias uma dada solução ira ter no processo de duplicação
+int numberOfCopiesForSolution(int solutionIndex) {
+    int solutionCost = getSolutionCost(solutionIndex);
+    int numberOfCopies = 0;
+    
+    // solução é inválida
+    if (solutionCost == INFINITE) { return 0; }
+    
+    // quanto menor é a solução, mais ótima ela é, e por isso irá possuir mais chances de ser cruzada, a operação a seguir basicamente
+    // pega um valor e divide pelo custo da solução, adicionando a parte inteira do resultado ao número de cópias, após isso pega a parte
+    // fracionária e a usa como medida de probabilidade para adicionar mais uma cópia.
+    float fitnessValue = solutionsAverageCost / solutionCost;
+    float fitnessFractionPortion = fitnessValue - floor(fitnessValue);
+    int fitnessIntegerPortion = (int)fitnessValue;
+
+    if (fitnessFractionPortion * 10 >= rand() % 10 + 1) {
+        numberOfCopies++;
+    }
+
+    numberOfCopies += fitnessIntegerPortion;
+    printf("Solution with index %i has %i copies\n", solutionIndex, numberOfCopies);
+    return numberOfCopies;
 }
 
 unsigned int calculateCost(unsigned int solution_index) {
