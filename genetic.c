@@ -12,17 +12,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+#include "genetic.h"
+
 
 // Solutions population
 #define POPULATION_SIZE 10
+#define INFINITE 999999
 
 const int instance_size = 5;
 const int instance[5][5] = {
-    {999999, 100, 3, 3, 100},
-    {100, 999999, 100, 3, 3},
-    {3, 100, 999999, 100, 3},
-    {3, 3, 100, 999999, 100},
-    {100, 3, 3, 100, 999999}
+    {INFINITE, 100, 3, 3, 100},
+    {100, INFINITE, 100, 3, 3},
+    {3, 100, INFINITE, 100, 3},
+    {3, 3, 100, INFINITE, 100},
+    {100, 3, 3, 100, INFINITE}
 };
 
 int population[POPULATION_SIZE][5] = {
@@ -41,6 +45,7 @@ int population[POPULATION_SIZE][5] = {
 int *population_costs;
 int *population_fitness;
 double *cumulative_fitness;
+float population_avarage_cost;
 
 void initializeRandomGenerator();
 unsigned int calculateCost(unsigned int solution_index);
@@ -60,7 +65,10 @@ int main(int argc, char **argv) {
     population_costs = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     population_fitness = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     cumulative_fitness = (double*) malloc (sizeof(double) * POPULATION_SIZE);
+    
 
+    
+    
     int i;
     for (i=0; i<30; i++) {
         stepGeneration();
@@ -74,17 +82,61 @@ int main(int argc, char **argv) {
                 lowest_cost_index = j;
             }
         }
-
+        
         printf("\n@@@ Generation #%d:\n", i);
         printSolutionInPopulation(lowest_cost_index);
     }
-
+    
+    population_avarage_cost = getSolutionsAverageCost();
+    for (int k = 0; k < POPULATION_SIZE; k++) {
+        int number_of_copies = numberOfCopiesForSolution(k);
+        printf("Solution with index %i should have %i copies in roulette wheel.\n", k, number_of_copies);
+    }
 
     return 0;
 }
 
 void initializeRandomGenerator() {
     srand(time(NULL));
+}
+
+// retorna a média dos custos das soluções (excluindo soluções inválidas infinitas)
+float getSolutionsAverageCost(){
+    int not_infinite_solutions = 0;
+    float averageCost = 0;
+    for (int i = 0; i < POPULATION_SIZE; i++) {
+        int solutionCost = calculateCost(i);
+        if (solutionCost != INFINITE) {
+            averageCost += solutionCost;
+            not_infinite_solutions++;
+        }
+    }
+    averageCost = averageCost / not_infinite_solutions;
+    return averageCost;
+}
+
+// diz quantas cópias uma dada solução ira ter no processo de duplicação (inspirado na roleta russa do artigo)
+int numberOfCopiesForSolution(int solution_index) {
+    
+    int solution_cost = calculateCost(solution_index);
+    int number_of_copies = 0;
+    
+    // solução é inválida
+    if (solution_cost == INFINITE) { return 0; }
+    
+    // quanto menor é a solução, mais ótima ela é, e por isso irá possuir mais chances de ser cruzada, a operação a seguir basicamente
+    // pega um valor e divide pelo custo da solução, adicionando a parte inteira do resultado ao número de cópias, após isso pega a parte
+    // fracionária e a usa como medida de probabilidade para adicionar mais uma cópia.
+    float solution_fitness = population_avarage_cost / solution_cost;
+    float fitness_fraction_portion = solution_fitness - floor(solution_fitness);
+    int fitness_integer_portion = (int)solution_fitness;
+    
+    if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
+        number_of_copies++;
+    }
+    
+    number_of_copies += fitness_integer_portion;
+    return number_of_copies;
 }
 
 unsigned int calculateCost(unsigned int solution_index) {
@@ -98,7 +150,7 @@ unsigned int calculateCost(unsigned int solution_index) {
         }
     }
     else {
-        return 999999;
+        return INFINITE;
     }
     return total_cost;
 }
