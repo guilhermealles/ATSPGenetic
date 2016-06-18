@@ -42,6 +42,10 @@ int population[POPULATION_SIZE][5] = {
     {0, 1, 2, 3, 4}
 };
 
+FILE *data;
+int *costs_matriz;
+long int population_dimension;
+
 int *population_costs;
 int *population_fitness;
 double *cumulative_fitness;
@@ -66,9 +70,6 @@ int main(int argc, char **argv) {
     population_fitness = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     cumulative_fitness = (double*) malloc (sizeof(double) * POPULATION_SIZE);
     
-
-    
-    
     int i;
     for (i=0; i<30; i++) {
         stepGeneration();
@@ -92,6 +93,8 @@ int main(int argc, char **argv) {
         int number_of_copies = numberOfCopiesForSolution(k);
         printf("Solution with index %i should have %i copies in roulette wheel.\n", k, number_of_copies);
     }
+    
+    createMatrizFromData();
 
     return 0;
 }
@@ -99,6 +102,8 @@ int main(int argc, char **argv) {
 void initializeRandomGenerator() {
     srand(time(NULL));
 }
+
+
 
 // retorna a média dos custos das soluções (excluindo soluções inválidas infinitas)
 float getSolutionsAverageCost(){
@@ -348,4 +353,56 @@ void stepGeneration() {
     }
 
     free(child);
+}
+
+
+// MATRIZ METHODS
+
+void createMatrizFromData(){
+    data = fopen("br17.txt", "r");
+    
+    if( !data ){
+        printf("\nError in reading form text file.\n");
+        return;
+    }
+    
+    // pula 3 linhas
+    for (int i=0; i<3; i++) {
+        char c = fgetc(data);
+        while (c != '\n') {
+            c = fgetc(data);
+        }
+    }
+    
+    fscanf(data, "DIMENSION: %lu", &population_dimension);
+    printf("Population dimension: %lu\n", population_dimension);
+    
+    // pula 4 linhas
+    for (int i=0; i<4; i++) {
+        char c = fgetc(data);
+        while (c != '\n') {
+            c = fgetc(data);
+        }
+    }
+    costs_matriz = (int *)malloc(sizeof(int) * population_dimension * population_dimension);
+    
+    int i, j;
+    for(i = 0; i < population_dimension; i++){
+        for(j = 0; j < population_dimension; j++){
+            fscanf(data, "%i", &costs_matriz[i*population_dimension + j]);
+        }
+    }
+    printPopulation(costs_matriz);
+    
+    return;
+}
+
+void printPopulation(int *population_matriz){
+    int i, j;
+    for(i = 0; i < population_dimension; i++){
+        for(j = 0; j < population_dimension; j++){
+            printf("%i ", population_matriz[i*population_dimension + j]);
+        }
+        printf("\n");
+    }
 }

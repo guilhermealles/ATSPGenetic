@@ -11,5 +11,7 @@ int* crossover (unsigned int parent1_index, unsigned int parent2_index);
 void printSolution(int *solution);
 float getSolutionsAverageCost();
 int numberOfCopiesForSolution(int solution_index);
+void createMatrizFromData();
+void printPopulation(int *population_matriz);
 
 #endif
