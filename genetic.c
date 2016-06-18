@@ -36,9 +36,9 @@ int population[POPULATION_SIZE][5] = {
     {3, 4, 0, 1, 2},
     {4, 0, 1, 2, 3},
     {3, 2, 1, 0, 4},
-    {2, 1, 0, 3, 4},
+    {2, 1, 0, 4, 3},
     {1, 0, 4, 3, 2},
-    {0, 4, 3, 1, 2},
+    {0, 4, 3, 2, 1},
     {0, 1, 2, 3, 4}
 };
 
@@ -88,6 +88,7 @@ int main(int argc, char **argv) {
         printSolutionInPopulation(lowest_cost_index);
     }
     
+    /*
     population_avarage_cost = getSolutionsAverageCost();
     for (int k = 0; k < POPULATION_SIZE; k++) {
         int number_of_copies = numberOfCopiesForSolution(k);
@@ -95,6 +96,8 @@ int main(int argc, char **argv) {
     }
     
     createMatrizFromData();
+
+    */
 
     return 0;
 }
@@ -259,7 +262,7 @@ void calculateFitness() {
 
     cumulative_fitness[0] = population_fitness[0]/fitness_sum;
     for (i=1; i<POPULATION_SIZE; i++) {
-        cumulative_fitness[i] = cumulative_fitness[i-1] + (population_fitness[i]/fitness_sum);
+        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
     }
 
 }
@@ -268,7 +271,7 @@ void calculateFitness() {
 // cumulative fitness as a likelihood measure. The restriction
 // parameter is used to avoid selecting the same solution twice
 unsigned int selectSolutionFromFitness(int restriction) {
-    double random = (rand()%100)/100;
+    double random = (rand()%100)/100.0;
     if ((random >= 0) && (random < cumulative_fitness[0]))
         return 0;
 
@@ -341,7 +344,7 @@ void stepGeneration() {
     int *child = crossover(parent1_index, parent2_index);
 
     int mutation_prob = rand() % 100;
-    if (mutation_prob <= 1) {
+    if (mutation_prob <= 10) {
         mutate(child);
     }
 
