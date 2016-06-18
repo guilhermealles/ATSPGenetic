@@ -12,6 +12,6 @@ void printSolution(int *solution);
 float getSolutionsAverageCost();
 int numberOfCopiesForSolution(int solution_index);
 void createMatrizFromData();
-void printPopulation(int *population_matriz);
+void printPopulation(int **population_matriz);
 
 #endif

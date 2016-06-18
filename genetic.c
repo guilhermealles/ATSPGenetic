@@ -20,6 +20,7 @@
 #define POPULATION_SIZE 10
 #define INFINITE 999999
 
+/*
 const int instance_size = 5;
 const int instance[5][5] = {
     {INFINITE, 100, 3, 3, 100},
@@ -28,6 +29,10 @@ const int instance[5][5] = {
     {3, 3, 100, INFINITE, 100},
     {100, 3, 3, 100, INFINITE}
 };
+*/
+
+int instance_size;
+int **instance;
 
 int population[POPULATION_SIZE][5] = {
     {0, 1, 2, 3, 4},
@@ -43,8 +48,6 @@ int population[POPULATION_SIZE][5] = {
 };
 
 FILE *data;
-int *costs_matriz;
-long int population_dimension;
 
 int *population_costs;
 int *population_fitness;
@@ -69,9 +72,17 @@ int main(int argc, char **argv) {
     population_costs = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     population_fitness = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     cumulative_fitness = (double*) malloc (sizeof(double) * POPULATION_SIZE);
+
+    int i, j;
+    for (i=0; i<POPULATION_SIZE; i++) {
+        for (j=0; j<instance_size; j++) {
+            population[i][j] = (i + j) % instance_size;
+        }
+    }
+
+    createMatrizFromData();
     
-    int i;
-    for (i=0; i<30; i++) {
+    for (i=0; i<300000; i++) {
         stepGeneration();
         calculateFitness();
         int lowest_cost = population_costs[0];
@@ -94,9 +105,6 @@ int main(int argc, char **argv) {
         int number_of_copies = numberOfCopiesForSolution(k);
         printf("Solution with index %i should have %i copies in roulette wheel.\n", k, number_of_copies);
     }
-    
-    createMatrizFromData();
-
     */
 
     return 0;
@@ -344,7 +352,7 @@ void stepGeneration() {
     int *child = crossover(parent1_index, parent2_index);
 
     int mutation_prob = rand() % 100;
-    if (mutation_prob <= 10) {
+    if (mutation_prob <= 1) {
         mutate(child);
     }
 
@@ -377,8 +385,8 @@ void createMatrizFromData(){
         }
     }
     
-    fscanf(data, "DIMENSION: %lu", &population_dimension);
-    printf("Population dimension: %lu\n", population_dimension);
+    fscanf(data, "DIMENSION: %u", &instance_size);
+    printf("Population dimension: %u\n", instance_size);
     
     // pula 4 linhas
     for (int i=0; i<4; i++) {
@@ -387,24 +395,27 @@ void createMatrizFromData(){
             c = fgetc(data);
         }
     }
-    costs_matriz = (int *)malloc(sizeof(int) * population_dimension * population_dimension);
-    
+
+    instance = (int **) malloc(sizeof(int*) * instance_size);
+    for (int i=0; i<instance_size; i++) {
+        instance[i] = (int*) malloc(sizeof(int) * instance_size);
+    }
+
     int i, j;
-    for(i = 0; i < population_dimension; i++){
-        for(j = 0; j < population_dimension; j++){
-            fscanf(data, "%i", &costs_matriz[i*population_dimension + j]);
+    for(i = 0; i < instance_size; i++){
+        for(j = 0; j < instance_size; j++){
+            fscanf(data, "%i", &instance[i][j]);
         }
     }
-    printPopulation(costs_matriz);
     
     return;
 }
 
-void printPopulation(int *population_matriz){
+void printPopulation (int **population_matriz){
     int i, j;
-    for(i = 0; i < population_dimension; i++){
-        for(j = 0; j < population_dimension; j++){
-            printf("%i ", population_matriz[i*population_dimension + j]);
+    for(i = 0; i < instance_size; i++){
+        for(j = 0; j < instance_size; j++){
+            printf("%i ", population_matriz[i][j]);
         }
         printf("\n");
     }
