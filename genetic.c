@@ -41,7 +41,7 @@ FILE *data;
 int *population_costs;
 int *population_fitness;
 double *cumulative_fitness;
-float population_avarage_cost;
+float population_average_cost;
 
 int solutions_fitness_sum;
 
@@ -222,13 +222,13 @@ void calculateFitness() {
     }
     
     
-    float solutions_average_cost = costs_sum / i;
+    population_average_cost = costs_sum / i;
     
     // calculo da fitness de cada solução baseada na relação entre a média dos custos de todas soluções dividido pelo seu custo
     solutions_fitness_sum = 0;
     for (i = 0; i<POPULATION_SIZE; i++) {
         int fitness = 0;
-        float solution_fitness = solutions_average_cost / population_costs[i];
+        float solution_fitness = population_average_cost / population_costs[i];
         float fitness_fraction_portion = solution_fitness - floor(solution_fitness);
         int fitness_integer_portion = (int)solution_fitness;
         
@@ -246,24 +246,24 @@ void calculateFitness() {
         cumulative_fitness[i] = cumulative_fitness[i-1] + population_fitness[i];
     }
     
-    //    int i;
-    //
-    //    unsigned int costs_sum = 0;
-    //    for (i=0; i<POPULATION_SIZE; i++) {
-    //        population_costs[i] = calculateCost(i);
-    //        costs_sum += population_costs[i];
-    //    }
-    //
-    //    unsigned int fitness_sum=0;
-    //    for (i=0; i<POPULATION_SIZE; i++) {
-    //        population_fitness[i] = costs_sum - population_costs[i];
-    //        fitness_sum += population_fitness[i];
-    //    }
-    //
-    //    cumulative_fitness[0] = population_fitness[0]/fitness_sum;
-    //    for (i=1; i<POPULATION_SIZE; i++) {
-    //        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
-    //    }
+//    int i;
+//    
+//    unsigned int costs_sum = 0;
+//    for (i=0; i<POPULATION_SIZE; i++) {
+//        population_costs[i] = calculateCost(i);
+//        costs_sum += population_costs[i];
+//    }
+//    
+//    unsigned int fitness_sum=0;
+//    for (i=0; i<POPULATION_SIZE; i++) {
+//        population_fitness[i] = costs_sum - population_costs[i];
+//        fitness_sum += population_fitness[i];
+//    }
+//    
+//    cumulative_fitness[0] = population_fitness[0]/fitness_sum;
+//    for (i=1; i<POPULATION_SIZE; i++) {
+//        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
+//    }
     
 }
 
@@ -272,7 +272,7 @@ void calculateFitness() {
 // parameter is used to avoid selecting the same solution twice
 unsigned int selectSolutionFromFitness(int restriction) {
     int random = (rand()%solutions_fitness_sum);
-    //    double random = (rand()%100)/100.0;
+//    double random = (rand()%100)/100.0;
     if ((random >= 0) && (random < cumulative_fitness[0]))
         return 0;
     
@@ -354,6 +354,10 @@ void stepGeneration() {
         free(population[solution_to_die]);
         
         population[solution_to_die] = child;
+        population_costs[solution_to_die] = calculateCost(solution_to_die);
+        population_fitness[solution_to_die] = INFINITE; //don't let another soon take his place
+        
+        
     }
     
 }
@@ -362,7 +366,7 @@ void stepGeneration() {
 // MATRIZ METHODS
 
 void createMatrizFromData(){
-    data = fopen("/Users/rvaler/tfOti/br17.txt", "r");
+    data = fopen("/Users/rvaler/tfOti/ft70.txt", "r");
     
     if( !data ){
         printf("\nError in reading form text file.\n");
