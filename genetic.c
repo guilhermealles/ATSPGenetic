@@ -17,7 +17,7 @@
 
 
 // Solutions population
-#define POPULATION_SIZE 10
+#define POPULATION_SIZE 300
 #define INFINITE 999999
 
 /*
@@ -59,7 +59,7 @@ void printSolutionInPopulation(int solution_index);
 
 int main(int argc, char **argv) {
     initializeRandomGenerator();
-    createMatrizFromData();
+    createMatrixFromData();
     
     population = (int**) malloc (sizeof(int*) * POPULATION_SIZE);
     for (int i = 0; i<POPULATION_SIZE; i++) {
@@ -70,14 +70,14 @@ int main(int argc, char **argv) {
     population_fitness = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     cumulative_fitness = (double*) malloc (sizeof(double) * POPULATION_SIZE);
     
-    int i, j;
+    long int i, j;
     for (i=0; i<POPULATION_SIZE; i++) {
         for (j=0; j<instance_size; j++) {
             population[i][j] = (i + j) % instance_size;
         }
     }
     
-    for (i=0; i<30000000; i++) {
+    for (i=0; i<30000; i++) {
         stepGeneration();
     }
     calculateFitness();
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
         }
     }
     
-    printf("\n@@@ Generation #%d:\n", i);
+    printf("\n@@@ Generation #%li:\n", i);
     printSolutionInPopulation(lowest_cost_index);
     
     return 0;
@@ -362,11 +362,8 @@ void stepGeneration() {
     
 }
 
-
-// MATRIZ METHODS
-
-void createMatrizFromData(){
-    data = fopen("/Users/rvaler/tfOti/ft70.txt", "r");
+void createMatrixFromData(){
+    data = fopen("instances/ft70.atsp", "r");
     
     if( !data ){
         printf("\nError in reading form text file.\n");
