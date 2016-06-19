@@ -43,6 +43,8 @@ int *population_fitness;
 double *cumulative_fitness;
 float population_avarage_cost;
 
+int solutions_fitness_sum;
+
 void initializeRandomGenerator();
 unsigned int calculateCost(unsigned int solution_index);
 int validSolution (unsigned int solution_index);
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
     createMatrizFromData();
     
     population = (int**) malloc (sizeof(int*) * POPULATION_SIZE);
-    for (int i; i<POPULATION_SIZE; i++) {
+    for (int i = 0; i<POPULATION_SIZE; i++) {
         population[i] = (int*) malloc (sizeof(int) * instance_size);
     }
     
@@ -75,7 +77,7 @@ int main(int argc, char **argv) {
         }
     }
     
-    for (i=0; i<3000000; i++) {
+    for (i=0; i<30000000; i++) {
         stepGeneration();
     }
     calculateFitness();
@@ -91,22 +93,12 @@ int main(int argc, char **argv) {
     printf("\n@@@ Generation #%d:\n", i);
     printSolutionInPopulation(lowest_cost_index);
     
-    /*
-     population_avarage_cost = getSolutionsAverageCost();
-     for (int k = 0; k < POPULATION_SIZE; k++) {
-     int number_of_copies = numberOfCopiesForSolution(k);
-     printf("Solution with index %i should have %i copies in roulette wheel.\n", k, number_of_copies);
-     }
-     */
-    
     return 0;
 }
 
 void initializeRandomGenerator() {
     srand(time(NULL));
 }
-
-
 
 // retorna a média dos custos das soluções (excluindo soluções inválidas infinitas)
 float getSolutionsAverageCost(){
@@ -121,30 +113,6 @@ float getSolutionsAverageCost(){
     }
     averageCost = averageCost / not_infinite_solutions;
     return averageCost;
-}
-
-// diz quantas cópias uma dada solução ira ter no processo de duplicação (inspirado na roleta russa do artigo)
-int numberOfCopiesForSolution(int solution_index) {
-    
-    int solution_cost = calculateCost(solution_index);
-    int number_of_copies = 0;
-    
-    // solução é inválida
-    if (solution_cost == INFINITE) { return 0; }
-    
-    // quanto menor é a solução, mais ótima ela é, e por isso irá possuir mais chances de ser cruzada, a operação a seguir basicamente
-    // pega um valor e divide pelo custo da solução, adicionando a parte inteira do resultado ao número de cópias, após isso pega a parte
-    // fracionária e a usa como medida de probabilidade para adicionar mais uma cópia.
-    float solution_fitness = population_avarage_cost / solution_cost;
-    float fitness_fraction_portion = solution_fitness - floor(solution_fitness);
-    int fitness_integer_portion = (int)solution_fitness;
-    
-    if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
-        number_of_copies++;
-    }
-    
-    number_of_copies += fitness_integer_portion;
-    return number_of_copies;
 }
 
 unsigned int calculateCost(unsigned int solution_index) {
@@ -247,23 +215,55 @@ int* crossover (unsigned int parent1_index, unsigned int parent2_index) {
 
 void calculateFitness() {
     int i;
-    
     unsigned int costs_sum = 0;
-    for (i=0; i<POPULATION_SIZE; i++) {
+    for (i = 0; i < POPULATION_SIZE; i++) {
         population_costs[i] = calculateCost(i);
         costs_sum += population_costs[i];
     }
     
-    unsigned int fitness_sum=0;
-    for (i=0; i<POPULATION_SIZE; i++) {
-        population_fitness[i] = costs_sum - population_costs[i];
-        fitness_sum += population_fitness[i];
+    
+    float solutions_average_cost = costs_sum / i;
+    
+    // calculo da fitness de cada solução baseada na relação entre a média dos custos de todas soluções dividido pelo seu custo
+    solutions_fitness_sum = 0;
+    for (i = 0; i<POPULATION_SIZE; i++) {
+        int fitness = 0;
+        float solution_fitness = solutions_average_cost / population_costs[i];
+        float fitness_fraction_portion = solution_fitness - floor(solution_fitness);
+        int fitness_integer_portion = (int)solution_fitness;
+        
+        if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
+            fitness++;
+        }
+        
+        fitness += fitness_integer_portion;
+        population_fitness[i] = fitness;
+        solutions_fitness_sum += population_fitness[i];
     }
     
-    cumulative_fitness[0] = population_fitness[0]/fitness_sum;
+    cumulative_fitness[0] = population_fitness[0];
     for (i=1; i<POPULATION_SIZE; i++) {
-        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
+        cumulative_fitness[i] = cumulative_fitness[i-1] + population_fitness[i];
     }
+    
+    //    int i;
+    //
+    //    unsigned int costs_sum = 0;
+    //    for (i=0; i<POPULATION_SIZE; i++) {
+    //        population_costs[i] = calculateCost(i);
+    //        costs_sum += population_costs[i];
+    //    }
+    //
+    //    unsigned int fitness_sum=0;
+    //    for (i=0; i<POPULATION_SIZE; i++) {
+    //        population_fitness[i] = costs_sum - population_costs[i];
+    //        fitness_sum += population_fitness[i];
+    //    }
+    //
+    //    cumulative_fitness[0] = population_fitness[0]/fitness_sum;
+    //    for (i=1; i<POPULATION_SIZE; i++) {
+    //        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
+    //    }
     
 }
 
@@ -271,7 +271,8 @@ void calculateFitness() {
 // cumulative fitness as a likelihood measure. The restriction
 // parameter is used to avoid selecting the same solution twice
 unsigned int selectSolutionFromFitness(int restriction) {
-    double random = (rand()%100)/100.0;
+    int random = (rand()%solutions_fitness_sum);
+    //    double random = (rand()%100)/100.0;
     if ((random >= 0) && (random < cumulative_fitness[0]))
         return 0;
     
@@ -341,24 +342,27 @@ void stepGeneration() {
     int parent1_index = selectSolutionFromFitness(-1);
     int parent2_index = selectSolutionFromFitness(parent1_index);
     
-    int *child = crossover(parent1_index, parent2_index);
-    
-    int mutation_prob = rand() % 100;
-    if (mutation_prob <= 1) {
-        mutate(child);
+    for (int k = 0; k < 5; k++) {
+        int *child = crossover(parent1_index, parent2_index);
+        
+        int mutation_prob = rand() % 100;
+        if (mutation_prob <= 1) {
+            mutate(child);
+        }
+        
+        int solution_to_die = selectLeastFit();
+        free(population[solution_to_die]);
+        
+        population[solution_to_die] = child;
     }
     
-    int solution_to_die = selectLeastFit();
-    free(population[solution_to_die]);
-    
-    population[solution_to_die] = child;
 }
 
 
 // MATRIZ METHODS
 
 void createMatrizFromData(){
-    data = fopen("/Users/Alles/Workspace/ATSPGenetic/br17.txt", "r");
+    data = fopen("/Users/rvaler/tfOti/br17.txt", "r");
     
     if( !data ){
         printf("\nError in reading form text file.\n");
