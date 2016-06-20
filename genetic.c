@@ -182,10 +182,10 @@ unsigned int getFirstNotChosenNode (int *solution) {
 unsigned int getNotChosenNodeFromIndex (int *solution, unsigned int node_to_search) {
     int i;
     for (i=0; i<instance_size; i++) {
-        node_to_search = (node_to_search+1) % instance_size;
         if (notChosen(node_to_search, solution)) {
             return i;
         }
+        node_to_search = (node_to_search+1) % instance_size;
     }
 
     return -1;
