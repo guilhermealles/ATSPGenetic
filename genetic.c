@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>
@@ -38,13 +39,17 @@ float population_average_cost;
 
 int solutions_fitness_sum;
 
+char *instance_name;
+unsigned int time_limit;
+
 int main(int argc, char **argv) {
     if (argc != 3) {
         fprintf(stderr, "Usage: %s filename <time limit in seconds>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+    instance_name = argv[1];
     createMatrixFromData(argv[1]);
-    unsigned int time_limit = (unsigned int) strtol(argv[2], NULL, 10);
+    time_limit = (unsigned int) strtol(argv[2], NULL, 10);
 
     initializeRandomGenerator();
 
@@ -335,15 +340,30 @@ void printSolution(int *solution) {
 }
 
 void printSolutionInPopulation(int solution_index) {
+    FILE *fout;
+    char fout_name[80] = "resultados_";
+    strcat(fout_name, instance_name);
+    fout = fopen(fout_name, "w");
+    if (!fout) {
+        printf("Error when opening output file.\n");
+        exit(0);
+    }
+    
     printf("Solution: ");
+    fprintf(fout, "Caminho encontrado: ");
     int i, total_cost = 0;
     for(i=0; i<instance_size-1; i++) {
         if (i>0)
             total_cost += instance[population[solution_index][i-1]][population[solution_index][i]];
         printf("%d ->", population[solution_index][i]);
+        fprintf(fout, "%d ->", population[solution_index][i]);
     }
     total_cost += instance[population[solution_index][i]][population[solution_index][0]];
     printf("%d.\nTotal cost: %d.\n", population[solution_index][i], total_cost);
+    fprintf(fout, "%d.\nTotal cost: %d\n", population[solution_index][i], total_cost);
+    fprintf(fout, "Time: %i seconds \n", time_limit);
+    
+    fclose(fout);
 }
 
 void mutate(int *solution) {
