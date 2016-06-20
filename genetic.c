@@ -247,7 +247,7 @@ void calculateFitness() {
     }
 
 
-    population_average_cost = costs_sum / i;
+    population_average_cost = (float)costs_sum / i;
 
     // calculo da fitness de cada solução baseada na relação entre a média dos custos de todas soluções dividido pelo seu custo
     solutions_fitness_sum = 0;
