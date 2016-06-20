@@ -23,7 +23,7 @@
 #define INFINITE 999999
 #define ITERATIONS_COUNT 9999999
 
-int children_per_generation = 15;
+int children_per_generation = POPULATION_SIZE - 1;
 
 int instance_size;
 int **instance;
@@ -239,65 +239,73 @@ int* crossover (unsigned int parent1_index, unsigned int parent2_index) {
 }
 
 void calculateFitness() {
-    int i;
-    unsigned int costs_sum = 0;
-    for (i = 0; i < POPULATION_SIZE; i++) {
-        population_costs[i] = calculateCost(i);
-        costs_sum += population_costs[i];
-    }
-
-
-    population_average_cost = (float)costs_sum / i;
-
-    // calculo da fitness de cada solução baseada na relação entre a média dos custos de todas soluções dividido pelo seu custo
-    solutions_fitness_sum = 0;
-    for (i = 0; i<POPULATION_SIZE; i++) {
-        int fitness = 0;
-        float solution_fitness = population_average_cost / population_costs[i];
-        float fitness_fraction_portion = solution_fitness - (int)solution_fitness;
-        int fitness_integer_portion = (int)solution_fitness;
-
-        if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
-            fitness++;
-        }
-
-        fitness += fitness_integer_portion;
-        population_fitness[i] = fitness;
-        solutions_fitness_sum += population_fitness[i];
-    }
-
-    cumulative_fitness[0] = population_fitness[0];
-    for (i=1; i<POPULATION_SIZE; i++) {
-        cumulative_fitness[i] = cumulative_fitness[i-1] + population_fitness[i];
-    }
-
 //    int i;
-//
 //    unsigned int costs_sum = 0;
-//    for (i=0; i<POPULATION_SIZE; i++) {
+//    for (i = 0; i < POPULATION_SIZE; i++) {
 //        population_costs[i] = calculateCost(i);
 //        costs_sum += population_costs[i];
 //    }
 //
-//    unsigned int fitness_sum=0;
-//    for (i=0; i<POPULATION_SIZE; i++) {
-//        population_fitness[i] = costs_sum - population_costs[i];
-//        fitness_sum += population_fitness[i];
+//    population_average_cost = (float)costs_sum / i;
+////    printf("--------------Solution media: %f--------------\n", population_average_cost);
+//
+//    // calculo da fitness de cada solução baseada na relação entre a média dos custos de todas soluções dividido pelo seu custo
+//    solutions_fitness_sum = 0;
+//    for (i = 0; i<POPULATION_SIZE; i++) {
+//        int fitness = 0;
+//        float solution_fitness = population_average_cost / population_costs[i];
+//        float fitness_fraction_portion = solution_fitness - (int)solution_fitness;
+//        int fitness_integer_portion = (int)solution_fitness;
+//
+//        if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
+//            fitness++;
+//        }
+//
+//        fitness += fitness_integer_portion;
+//        population_fitness[i] = fitness;
+//        solutions_fitness_sum += population_fitness[i];
+//        
+////        printf("Solution fitness: %f\n", solution_fitness);
+////        printf("Solution integer fitness: %i\n", fitness_integer_portion);
+////        printf("Solution fraction fitness: %f\n", fitness_fraction_portion);
+////        printf("Solution final fitness: %i\n", fitness);
+//        
 //    }
 //
-//    cumulative_fitness[0] = population_fitness[0]/fitness_sum;
+//    cumulative_fitness[0] = population_fitness[0];
 //    for (i=1; i<POPULATION_SIZE; i++) {
-//        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
+//        cumulative_fitness[i] = cumulative_fitness[i-1] + population_fitness[i];
 //    }
 
+    // antiga função de avaliação
+    int i;
+
+    unsigned int costs_sum = 0;
+    for (i=0; i<POPULATION_SIZE; i++) {
+        population_costs[i] = calculateCost(i);
+        costs_sum += population_costs[i];
+    }
+
+    unsigned int fitness_sum=0;
+    for (i=0; i<POPULATION_SIZE; i++) {
+        population_fitness[i] = costs_sum - population_costs[i];
+        fitness_sum += population_fitness[i];
+    }
+
+    cumulative_fitness[0] = population_fitness[0]/fitness_sum;
+    for (i=1; i<POPULATION_SIZE; i++) {
+        cumulative_fitness[i] = cumulative_fitness[i-1] + ((double)population_fitness[i]/(double)fitness_sum);
+    }
+
 }
+
 
 // Selects a solution from the population considering the
 // cumulative fitness as a likelihood measure. The restriction
 // parameter is used to avoid selecting the same solution twice
 unsigned int selectSolutionFromFitness(int restriction) {
-    int random = (rand()%solutions_fitness_sum);
-//    double random = (rand()%100)/100.0;
+//    int random = (rand()%solutions_fitness_sum);
+    double random = (rand()%100)/100.0;
     if ((random >= 0) && (random < cumulative_fitness[0]))
         return 0;
 
@@ -328,18 +336,7 @@ unsigned int selectLeastFit() {
     return least_fit_index;
 }
 
-void printSolution(int *solution) {
-    printf("Solution: ");
-    int i, total_cost = 0;
-    for(i=0; i<instance_size-1; i++) {
-        if (i>0)
-            total_cost += instance[solution[i-1]][solution[i]];
-        printf("%d ->", solution[i]);
-    }
-    total_cost += instance[solution[i-1]][solution[i]];
-    printf("%d.\nTotal cost: %d.\n", solution[i], total_cost);
-}
-
+// escreve a solução encontrada (custo e caminho) em um arquivo txt
 void printSolutionInPopulation(int solution_index) {
     FILE *fout;
     char fout_name[80] = "_resultados.txt";
@@ -367,6 +364,7 @@ void printSolutionInPopulation(int solution_index) {
     fclose(fout);
 }
 
+// realiza a mutação de uma solução, inverte duas posições randômicas no caminho da solução
 void mutate(int *solution) {
     int swap_node_1 = rand() % instance_size;
     int swap_node_2 = rand() % instance_size;
@@ -386,23 +384,25 @@ void stepGeneration() {
     for (k = 0; k < children_per_generation; k++) {
         int *child = crossover(parent1_index, parent2_index);
 
+        // probabilidade de ocorrer uma mutação
         int mutation_prob = rand() % 100;
         if (mutation_prob <= 1) {
             mutate(child);
         }
 
+        // na criação de um novo filho para a próxima geração, escolhe a solução com menor
+        // fitness para sair dar lugar ao novo filho.
         int solution_to_die = selectLeastFit();
         free(population[solution_to_die]);
-
+        
         population[solution_to_die] = child;
         population_costs[solution_to_die] = calculateCost(solution_to_die);
         population_fitness[solution_to_die] = INFINITE; //don't let another son take his place
 
-
     }
-
 }
 
+// transforma txt de entrada em uma matriz contendo informações dos custos dos arcos
 void createMatrixFromData(char *filename){
     data = fopen(filename, "r");
 
@@ -442,6 +442,5 @@ void createMatrixFromData(char *filename){
             fscanf(data, "%i", &instance[i][j]);
         }
     }
-
     return;
 }
