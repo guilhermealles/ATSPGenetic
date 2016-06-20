@@ -60,7 +60,14 @@ int main(int argc, char **argv) {
     long int i, j;
     for (i=0; i<POPULATION_SIZE; i++) {
         for (j=0; j<instance_size; j++) {
-            population[i][j] = (i + j) % instance_size;
+            population[i][j] = -1;
+        }
+    }
+    // Initialize the population randomly
+    for (i=0; i<POPULATION_SIZE; i++) {
+        for (j=0; j<instance_size; j++) {
+            int random_node = rand() % instance_size;
+            population[i][j] = getNotChosenNodeFromIndex(population[i], random_node);
         }
     }
 
@@ -85,7 +92,7 @@ int main(int argc, char **argv) {
 
     printf("\n@@@ Generation #%li:\n", i);
     printSolutionInPopulation(lowest_cost_index);
-    
+
     return 0;
 }
 
@@ -170,6 +177,19 @@ unsigned int getFirstNotChosenNode (int *solution) {
     return -1;
 }
 
+// Given a solution, return the first node that does not yet
+// appear on the solution. Start counting from node_to_search
+unsigned int getNotChosenNodeFromIndex (int *solution, unsigned int node_to_search) {
+    int i;
+    for (i=0; i<instance_size; i++) {
+        node_to_search = (node_to_search+1) % instance_size;
+        if (notChosen(node_to_search, solution)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
 // Returns a new child in memory. NOTE: The child which will
 // be substituted MUST be freed!!
 int* crossover (unsigned int parent1_index, unsigned int parent2_index) {

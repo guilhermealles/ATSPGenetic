@@ -8,6 +8,7 @@ int validSolution (unsigned int solution_index);
 void stepGeneration();
 int notChosen(unsigned int node, int *solution);
 unsigned int getFirstNotChosenNode (int *solution);
+unsigned int getNotChosenNodeFromIndex (int *solution, unsigned int node_to_search);
 int* crossover (unsigned int parent1_index, unsigned int parent2_index);
 void printSolution(int *solution);
 void calculateFitness();
