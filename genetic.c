@@ -342,9 +342,9 @@ void printSolution(int *solution) {
 
 void printSolutionInPopulation(int solution_index) {
     FILE *fout;
-    char fout_name[80] = "resultados_";
-    strcat(fout_name, instance_name);
-    fout = fopen(fout_name, "w");
+    char fout_name[80] = "_resultados.txt";
+    strcat(instance_name, fout_name);
+    fout = fopen(instance_name, "w");
     if (!fout) {
         printf("Error when opening output file.\n");
         exit(0);
