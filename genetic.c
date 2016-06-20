@@ -53,8 +53,9 @@ int main(int argc, char **argv) {
 
     initializeRandomGenerator();
 
+    long int i, j;
     population = (int**) malloc (sizeof(int*) * POPULATION_SIZE);
-    for (int i = 0; i<POPULATION_SIZE; i++) {
+    for (i = 0; i<POPULATION_SIZE; i++) {
         population[i] = (int*) malloc (sizeof(int) * instance_size);
     }
 
@@ -62,7 +63,6 @@ int main(int argc, char **argv) {
     population_fitness = (int*) malloc (sizeof(int) * POPULATION_SIZE);
     cumulative_fitness = (double*) malloc (sizeof(double) * POPULATION_SIZE);
 
-    long int i, j;
     for (i=0; i<POPULATION_SIZE; i++) {
         for (j=0; j<instance_size; j++) {
             population[i][j] = -1;
@@ -115,7 +115,8 @@ void initializeRandomGenerator() {
 float getSolutionsAverageCost(){
     int not_infinite_solutions = 0;
     float averageCost = 0;
-    for (int i = 0; i < POPULATION_SIZE; i++) {
+    int i;
+    for (i = 0; i < POPULATION_SIZE; i++) {
         int solutionCost = calculateCost(i);
         if (solutionCost != INFINITE) {
             averageCost += solutionCost;
@@ -253,7 +254,7 @@ void calculateFitness() {
     for (i = 0; i<POPULATION_SIZE; i++) {
         int fitness = 0;
         float solution_fitness = population_average_cost / population_costs[i];
-        float fitness_fraction_portion = solution_fitness - floor(solution_fitness);
+        float fitness_fraction_portion = solution_fitness - (int)solution_fitness;
         int fitness_integer_portion = (int)solution_fitness;
 
         if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
@@ -381,7 +382,8 @@ void stepGeneration() {
     int parent1_index = selectSolutionFromFitness(-1);
     int parent2_index = selectSolutionFromFitness(parent1_index);
 
-    for (int k = 0; k < children_per_generation; k++) {
+    int k;
+    for (k = 0; k < children_per_generation; k++) {
         int *child = crossover(parent1_index, parent2_index);
 
         int mutation_prob = rand() % 100;
@@ -410,7 +412,8 @@ void createMatrixFromData(char *filename){
     }
 
     // pula 3 linhas
-    for (int i=0; i<3; i++) {
+    int i;
+    for (i=0; i<3; i++) {
         char c = fgetc(data);
         while (c != '\n') {
             c = fgetc(data);
@@ -421,7 +424,7 @@ void createMatrixFromData(char *filename){
     printf("Population dimension: %u\n", instance_size);
 
     // pula 4 linhas
-    for (int i=0; i<4; i++) {
+    for (i=0; i<4; i++) {
         char c = fgetc(data);
         while (c != '\n') {
             c = fgetc(data);
@@ -429,11 +432,11 @@ void createMatrixFromData(char *filename){
     }
 
     instance = (int **) malloc(sizeof(int*) * instance_size);
-    for (int i=0; i<instance_size; i++) {
+    for (i=0; i<instance_size; i++) {
         instance[i] = (int*) malloc(sizeof(int) * instance_size);
     }
 
-    int i, j;
+    int j;
     for(i = 0; i < instance_size; i++){
         for(j = 0; j < instance_size; j++){
             fscanf(data, "%i", &instance[i][j]);
