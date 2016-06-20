@@ -249,7 +249,7 @@ void calculateFitness() {
     for (i = 0; i<POPULATION_SIZE; i++) {
         int fitness = 0;
         float solution_fitness = population_average_cost / population_costs[i];
-        float fitness_fraction_portion = solution_fitness - floor(solution_fitness);
+        float fitness_fraction_portion = solution_fitness - (int)solution_fitness;
         int fitness_integer_portion = (int)solution_fitness;
 
         if (fitness_fraction_portion * 10 >= rand() % 10 + 1) {
