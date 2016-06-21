@@ -23,7 +23,7 @@
 #define INFINITE 999999
 #define ITERATIONS_COUNT 9999999
 
-int children_per_generation = POPULATION_SIZE - 1;
+int children_per_generation = 15;
 
 int instance_size;
 int **instance;
