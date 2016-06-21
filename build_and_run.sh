@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # Build target
-gcc genetic.c -Wall -O3 -o genetic
+make clean
+make
 
-./genetic ./instances/br17.atsp 3610 > outputs/br17.txt
-./genetic ./instances/ft70.atsp 3610 > outputs/ft70.txt
-./genetic ./instances/ftv33.atsp 3610 > outputs/ftv33.txt
-./genetic ./instances/ftv44.atsp 3610 > outputs/ftv44.txt
-./genetic ./instances/ftv55.atsp 3610 > outputs/ftv55.txt
-./genetic ./instances/ftv170.atsp 3610 > outputs/ftv170.txt
-./genetic ./instances/kro124p.atsp 3610 > outputs/kro124p.txt
-./genetic ./instances/rbg323.atsp 3610 > outputs/rbg323.txt
-./genetic ./instances/rbg358.atsp 3610 > outputs/rbg358.txt
-./genetic ./instances/rbg403.atsp 3610 > outputs/rbg403.txt
+./genetic ./instances/br17.atsp 40 > outputs/40s_br17.txt
+./genetic ./instances/ft70.atsp 40 > outputs/40s_ft70.txt
+./genetic ./instances/ftv33.atsp 40 > outputs/40s_ftv33.txt
+./genetic ./instances/ftv44.atsp 40 > outputs/40s_ftv44.txt
+./genetic ./instances/ftv55.atsp 40 > outputs/40s_ftv55.txt
+./genetic ./instances/ftv170.atsp 40 > outputs/40s_ftv170.txt
+./genetic ./instances/kro124p.atsp 40 > outputs/40s_kro124p.txt
+./genetic ./instances/rbg323.atsp 40 > outputs/40s_rbg323.txt
+./genetic ./instances/rbg358.atsp 40 > outputs/40s_rbg358.txt
+./genetic ./instances/rbg403.atsp 40 > outputs/40s_rbg403.txt
