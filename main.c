@@ -15,13 +15,14 @@ int main (int argc, char **argv) {
     initGenetic(argv[1]);
 
     unsigned long int i=0;
-    double begin_time, end_time;
+    double begin_time, end_time, elapsed_time=0;
     begin_time = getTime();
     end_time = getTime();
-    while ((i < ITERATIONS_COUNT) && ((end_time-begin_time) < time_limit)) {
+    while ((i < ITERATIONS_COUNT) && (elapsed_time < time_limit)) {
         stepGeneration();
         i++;
         end_time = getTime();
+        elapsed_time = end_time - begin_time;
     }
 
     printf("\n@@@ Generation #%li:\n", i);

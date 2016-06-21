@@ -28,8 +28,8 @@ int **instance;
 
 int **population;
 
-int *population_costs;
-int *population_fitness;
+unsigned int *population_costs;
+unsigned long long *population_fitness;
 double *cumulative_fitness;
 float population_average_cost;
 
@@ -58,8 +58,8 @@ void initGenetic(char *instance_filename) {
     }
 
     // Allocate arrays to calculate fitness
-    population_costs = (int*) malloc (sizeof(int) * POPULATION_SIZE);
-    population_fitness = (int*) malloc (sizeof(int) * POPULATION_SIZE);
+    population_costs = (unsigned int*) malloc (sizeof(unsigned int) * POPULATION_SIZE);
+    population_fitness = (unsigned long long*) malloc (sizeof(unsigned long long) * POPULATION_SIZE);
     cumulative_fitness = (double*) malloc (sizeof(double) * POPULATION_SIZE);
 }
 
@@ -89,7 +89,7 @@ void stepGeneration() {
     }
 }
 
-// Returns a new child in memory. NOTE: The child which will
+// Returns a new child in memory. NOTE: The solution which will
 // be substituted MUST be freed!!
 int* crossover (unsigned int parent1_index, unsigned int parent2_index) {
     int* child = malloc(sizeof(int) * instance_size);
@@ -142,13 +142,14 @@ void mutate(int *solution) {
 
 void calculateFitness_alles() {
     int i;
-    unsigned int costs_sum = 0;
+    unsigned long long int costs_sum = 0;
     for (i=0; i<POPULATION_SIZE; i++) {
-        population_costs[i] = calculateCost(i);
+        int cost_for_population = calculateCost(i);
+        population_costs[i] = cost_for_population;
         costs_sum += population_costs[i];
     }
 
-    unsigned int fitness_sum=0;
+    unsigned long long int fitness_sum=0;
     for (i=0; i<POPULATION_SIZE; i++) {
         population_fitness[i] = costs_sum - population_costs[i];
         fitness_sum += population_fitness[i];
@@ -255,7 +256,7 @@ double getTime() {
 }
 
 void initializeRandomGenerator() {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 }
 
 // retorna a média dos custos das soluções (excluindo soluções inválidas infinitas)
@@ -278,7 +279,7 @@ int validSolution (unsigned int solution_index) {
     int i=0, j=0, found=0;
     for (i=0; i<instance_size; i++) {
         for(j=0; j<instance_size; j++) {
-            if ((population[solution_index][j] == i) && (population[solution_index][j] != INFINITE)) {
+            if (population[solution_index][j] == i)  {
                 found++;
             }
         }
@@ -320,7 +321,7 @@ unsigned int getNotChosenNodeFromIndex (int *solution, unsigned int node_to_sear
     int i;
     for (i=0; i<instance_size; i++) {
         if (notChosen(node_to_search, solution)) {
-            return i;
+            return node_to_search;
         }
         node_to_search = (node_to_search+1) % instance_size;
     }
@@ -330,7 +331,7 @@ unsigned int getNotChosenNodeFromIndex (int *solution, unsigned int node_to_sear
 
 // Returns the index of the least fit solution in the population
 unsigned int selectLeastFit() {
-    int lowest_fitness = population_fitness[0];
+    unsigned long long int lowest_fitness = population_fitness[0];
     unsigned int least_fit_index = 0;
     unsigned int i;
     for (i=1; i<POPULATION_SIZE; i++) {
@@ -340,6 +341,39 @@ unsigned int selectLeastFit() {
         }
     }
     return least_fit_index;
+}
+
+// Selects a member from the population. The selection is made considering the cost of each individual:
+// The higher the cost, the higher the probability of being selected
+int selectLeastFitWithProbability () {
+    double cumulative_costs[POPULATION_SIZE];
+
+    int i;
+    unsigned long long costs_sum = 0;
+    for (i=0; i<POPULATION_SIZE; i++) {
+        costs_sum += population_costs[i];
+    }
+
+    cumulative_costs[0] = (double)population_costs[0]/(double)costs_sum;
+    for (i=1; i<POPULATION_SIZE; i++) {
+        cumulative_costs[i] = cumulative_costs[i-1] + ((double)population_costs[i]/(double)costs_sum);
+    }
+
+    double random = (rand()%100)/100.0;
+    if ((random >= 0) && (random < cumulative_costs[0]))
+        return 0;
+
+    for (i=1; i<POPULATION_SIZE; i++) {
+        if ((random >= cumulative_costs[i-1]) && (random < cumulative_costs[i])) {
+            return i;
+        }
+    }
+
+    return POPULATION_SIZE-1;
+}
+
+unsigned int selectRandomFromPopulation() {
+    return (rand()%POPULATION_SIZE);
 }
 
 unsigned int bestSolutionFromPopulation() {
@@ -403,7 +437,7 @@ void createMatrixFromData(char *filename){
     data = fopen(filename, "r");
 
     if( !data ){
-        printf("\nError in reading form text file.\n");
+        printf("\nError in reading from text file.\n");
         return;
     }
 

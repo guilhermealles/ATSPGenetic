@@ -18,6 +18,8 @@ int notChosen(unsigned int node, int *solution);
 unsigned int getFirstNotChosenNode (int *solution);
 unsigned int getNotChosenNodeFromIndex (int *solution, unsigned int node_to_search);
 unsigned int selectLeastFit();
+int selectLeastFitWithProbability();
+unsigned int selectRandomFromPopulation();
 unsigned int bestSolutionFromPopulation();
 void printSolution(int *solution);
 void printSolutionInPopulation(int solution_index);
