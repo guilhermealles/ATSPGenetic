@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>
@@ -143,14 +144,14 @@ void calculateFitness_alles() {
     int i;
     unsigned int costs_sum = 0;
     for (i=0; i<POPULATION_SIZE; i++) {
-    population_costs[i] = calculateCost(i);
-    costs_sum += population_costs[i];
+        population_costs[i] = calculateCost(i);
+        costs_sum += population_costs[i];
     }
 
     unsigned int fitness_sum=0;
     for (i=0; i<POPULATION_SIZE; i++) {
-    population_fitness[i] = costs_sum - population_costs[i];
-    fitness_sum += population_fitness[i];
+        population_fitness[i] = costs_sum - population_costs[i];
+        fitness_sum += population_fitness[i];
     }
 
     cumulative_fitness[0] = population_fitness[0]/fitness_sum;
@@ -190,6 +191,7 @@ void calculateFitness_valer() {
         cumulative_fitness[i] = cumulative_fitness[i-1] + population_fitness[i];
     }
 }
+
 
 // Selects a solution from the population considering the
 // cumulative fitness as a likelihood measure. The restriction
@@ -368,15 +370,32 @@ void printSolution(int *solution) {
 }
 
 void printSolutionInPopulation(int solution_index) {
+    /*
+    FILE *fout;
+    char fout_name[80] = "_resultados.txt";
+    strcat(instance_name, fout_name);
+    fout = fopen(instance_name, "w");
+    if (!fout) {
+        printf("Error when opening output file.\n");
+        exit(0);
+    }
+    */
+
     printf("Solution: ");
+    //fprintf(fout, "Caminho encontrado: ");
     int i, total_cost = 0;
     for(i=0; i<instance_size-1; i++) {
         if (i>0)
             total_cost += instance[population[solution_index][i-1]][population[solution_index][i]];
         printf("%d ->", population[solution_index][i]);
+        //fprintf(fout, "%d ->", population[solution_index][i]);
     }
     total_cost += instance[population[solution_index][i]][population[solution_index][0]];
     printf("%d.\nTotal cost: %d.\n", population[solution_index][i], total_cost);
+    //fprintf(fout, "%d.\nTotal cost: %d\n", population[solution_index][i], total_cost);
+    //fprintf(fout, "Time: %i seconds \n", time_limit);
+
+    //fclose(fout);
 }
 
 void createMatrixFromData(char *filename){
