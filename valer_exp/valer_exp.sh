@@ -1,3 +1,4 @@
+#!/bin/bash
 # Clean and build targets
 cd ..
 make clean
@@ -25,8 +26,10 @@ for (( i = 0; i < 5; i++ )); do
 
     sleep 65
 
-    ./genetic ./instances/rbg358.atsp 60 >> valer_1min.txt
+    ./genetic ./instances/rbg358.atsp 60 >> valer_1min.txt &
     ./genetic ./instances/rbg403.atsp 60 >> valer_1min.txt
+
+    sleep 65
 done
 
 for (( i = 0; i < 5; i++ )); do
@@ -51,8 +54,10 @@ for (( i = 0; i < 5; i++ )); do
 
     sleep 330
 
-    ./genetic ./instances/rbg358.atsp 300 >> valer_5min.txt
+    ./genetic ./instances/rbg358.atsp 300 >> valer_5min.txt &
     ./genetic ./instances/rbg403.atsp 300 >> valer_5min.txt
+
+    sleep 330
 done
 
 for (( i = 0; i < 5; i++ )); do
@@ -77,6 +82,8 @@ for (( i = 0; i < 5; i++ )); do
 
     sleep 660
 
-    ./genetic ./instances/rbg358.atsp 600 >> valer_10min.txt
+    ./genetic ./instances/rbg358.atsp 600 >> valer_10min.txt &
     ./genetic ./instances/rbg403.atsp 600 >> valer_10min.txt
+
+    sleep 660
 done
