@@ -18,7 +18,7 @@
 #include "genetic.h"
 
 // Solutions population
-#define POPULATION_SIZE 300
+#define POPULATION_SIZE 50
 #define INFINITE 999999
 
 int children_per_generation = 15;
@@ -71,7 +71,7 @@ void stepGeneration() {
 
     int k;
     for (k = 0; k < children_per_generation; k++) {
-        int *child = crossover(parent1_index, parent2_index);
+        int *child = crossover_2(parent1_index, parent2_index);
 
         int mutation_prob = rand() % 100;
         if (mutation_prob <= 1) {
@@ -127,6 +127,41 @@ int* crossover (unsigned int parent1_index, unsigned int parent2_index) {
             child[i] = first;
         }
     }
+
+    return child;
+}
+
+int* crossover_2 (unsigned int parent1_index, unsigned int parent2_index) {
+    int* child = malloc(sizeof(int) * instance_size);
+
+    int *parent2_copy = malloc(sizeof(int) * instance_size);
+    memcpy(parent2_copy, population[parent2_index], (sizeof(int) * instance_size));
+
+    int parent_split = rand() % instance_size;
+
+    int i;
+    for (i=0; i<parent_split; i++) {
+        if (population[parent1_index][i] != parent2_copy[i]) {
+            int node_index_on_parent2;
+            for (node_index_on_parent2 = i; node_index_on_parent2<instance_size; node_index_on_parent2++) {
+                if (population[parent1_index][i] == parent2_copy[node_index_on_parent2]) {
+                    break;
+                }
+            }
+
+            int swp = parent2_copy[i];
+            parent2_copy[i] = parent2_copy[node_index_on_parent2];
+            parent2_copy[node_index_on_parent2] = swp;
+        }
+    }
+
+    for(i=0; i<parent_split; i++) {
+        child[i] = population[parent1_index][i];
+    }
+    for(; i<instance_size; i++) {
+        child[i] = parent2_copy[i];
+    }
+    free(parent2_copy);
 
     return child;
 }

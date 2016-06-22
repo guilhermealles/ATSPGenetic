@@ -4,6 +4,7 @@
 void initGenetic(char *instance_filename);
 void stepGeneration();
 int* crossover (unsigned int parent1_index, unsigned int parent2_index);
+int* crossover_2 (unsigned int parent1_index, unsigned int parent2_index);
 void mutate(int *solution);
 void calculateFitness_alles();
 void calculateFitness_valer();
