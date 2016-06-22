@@ -28,45 +28,23 @@ for (( i = 0; i < 5; i++ )); do
 done
 
 for (( i = 0; i < 5; i++ )); do
-    echo "=============================\n\n" >> alles_5min.txt
-    ./genetic ./instances/br17.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/ft70.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/ftv33.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/ftv44.atsp 300 >> alles_5min.txt &
+    echo "=============================\n\n" >> alles_30min.txt
+    ./genetic ./instances/br17.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/ft70.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/ftv33.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/ftv44.atsp 1800 >> alles_30min.txt &
 
-    sleep 330
+    sleep 1860
 
-    ./genetic ./instances/ftv55.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/ftv170.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/kro124p.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/rbg323.atsp 300 >> alles_5min.txt &
+    ./genetic ./instances/ftv55.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/ftv170.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/kro124p.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/rbg323.atsp 1800 >> alles_30min.txt &
 
-    sleep 330
+    sleep 1860
 
-    ./genetic ./instances/rbg358.atsp 300 >> alles_5min.txt &
-    ./genetic ./instances/rbg403.atsp 300 >> alles_5min.txt &
+    ./genetic ./instances/rbg358.atsp 1800 >> alles_30min.txt &
+    ./genetic ./instances/rbg403.atsp 1800 >> alles_30min.txt &
 
-    sleep 330
-done
-
-for (( i = 0; i < 5; i++ )); do
-    echo "=============================\n\n" >> alles_10min.txt
-    ./genetic ./instances/br17.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/ft70.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/ftv33.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/ftv44.atsp 600 >> alles_10min.txt &
-
-    sleep 660
-
-    ./genetic ./instances/ftv55.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/ftv170.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/kro124p.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/rbg323.atsp 600 >> alles_10min.txt &
-
-    sleep 660
-
-    ./genetic ./instances/rbg358.atsp 600 >> alles_10min.txt &
-    ./genetic ./instances/rbg403.atsp 600 >> alles_10min.txt &
-
-    sleep 660
+    sleep 1860
 done
