@@ -71,7 +71,7 @@ void stepGeneration() {
 
     int k;
     for (k = 0; k < children_per_generation; k++) {
-        int *child = crossover_2(parent1_index, parent2_index);
+        int *child = crossover(parent1_index, parent2_index);
 
         int mutation_prob = rand() % 100;
         if (mutation_prob <= 1) {
