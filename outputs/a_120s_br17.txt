@@ -1,0 +1,5 @@
+Population dimension: 17
+
+@@@ Generation #3607616:
+Solution: 13 ->2 ->11 ->0 ->8 ->7 ->16 ->4 ->3 ->6 ->14 ->5 ->15 ->12 ->9 ->10 ->1.
+Total cost: 39.
