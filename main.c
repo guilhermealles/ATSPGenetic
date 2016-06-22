@@ -13,6 +13,7 @@ int main (int argc, char **argv) {
     }
     unsigned int time_limit = (unsigned int) strtol(argv[2], NULL, 10);
     initGenetic(argv[1]);
+    //printInstance();
 
     unsigned long int i=0;
     double begin_time, end_time, elapsed_time=0;

@@ -391,45 +391,25 @@ unsigned int bestSolutionFromPopulation() {
     return lowest_cost_index;
 }
 
-void printSolution(int *solution) {
+void printSolutionInPopulation(int solution_index) {
     printf("Solution: ");
-    int i, total_cost = 0;
+    int i;
     for(i=0; i<instance_size-1; i++) {
-        if (i>0)
-            total_cost += instance[solution[i-1]][solution[i]];
-        printf("%d ->", solution[i]);
+        printf("%d ->", population[solution_index][i]);
     }
-    total_cost += instance[solution[i-1]][solution[i]];
-    printf("%d.\nTotal cost: %d.\n", solution[i], total_cost);
+    printf("%d.\nTotal cost: %d.\n", population[solution_index][i], calculateCost(solution_index));
 }
 
-void printSolutionInPopulation(int solution_index) {
-    /*
-    FILE *fout;
-    char fout_name[80] = "_resultados.txt";
-    strcat(instance_name, fout_name);
-    fout = fopen(instance_name, "w");
-    if (!fout) {
-        printf("Error when opening output file.\n");
-        exit(0);
+void printInstance() {
+    printf("Instance:\n");
+    int i, j;
+    for (i=0; i<instance_size; i++) {
+        for (j=0; j<instance_size; j++) {
+            printf("%d\t", instance[i][j]);
+        }
+        printf("\n");
     }
-    */
-
-    printf("Solution: ");
-    //fprintf(fout, "Caminho encontrado: ");
-    int i, total_cost = 0;
-    for(i=0; i<instance_size-1; i++) {
-        if (i>0)
-            total_cost += instance[population[solution_index][i-1]][population[solution_index][i]];
-        printf("%d ->", population[solution_index][i]);
-        //fprintf(fout, "%d ->", population[solution_index][i]);
-    }
-    total_cost += instance[population[solution_index][i]][population[solution_index][0]];
-    printf("%d.\nTotal cost: %d.\n", population[solution_index][i], total_cost);
-    //fprintf(fout, "%d.\nTotal cost: %d\n", population[solution_index][i], total_cost);
-    //fprintf(fout, "Time: %i seconds \n", time_limit);
-
-    //fclose(fout);
+    printf("\n");
 }
 
 void createMatrixFromData(char *filename){

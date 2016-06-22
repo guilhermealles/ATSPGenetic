@@ -21,8 +21,8 @@ unsigned int selectLeastFit();
 int selectLeastFitWithProbability();
 unsigned int selectRandomFromPopulation();
 unsigned int bestSolutionFromPopulation();
-void printSolution(int *solution);
 void printSolutionInPopulation(int solution_index);
+void printInstance();
 void createMatrixFromData(char *filename);
 
 
